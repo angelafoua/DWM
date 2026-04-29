@@ -1,0 +1,2 @@
+Sample,precision,recall,F-meas,linkedPairs,expectedPairs,truePairs,tokenizerType,nbr_Refs,total_Tokens,unique_Tokens,unique_Ratio,total_Numeric,numeric_Ratio,min_Freq,max_Freq,avg_Freq,stdev_Freq,min_Len,max_Len,avg_Len,stdev_Len,run_Global_Correction,min_Freq_Std_Token,min_Len_Std_Token,max_Freq_Err_Token,beta,block_By_Pairs,min_Blk_Token_Len,exclude_Numeric_Blocks,sigma,remove_Duplicate_Tokens,remove_Excluded_Blk_Tokens,epsilon,epsilon_Iterate,mu,mu_Iterate,comparator,matrix_Num_Token_Rule,matrix_Initial_Rule,blockCorrection
+
