@@ -77,3 +77,48 @@ def build_one_hot_vectors(refDict, tokenFreqDict, minBlkTokenLen=4,
         vectors[refID] = vec
 
     return vocab, vectors
+
+
+if __name__ == '__main__':
+    import argparse, re, sys
+
+    parser = argparse.ArgumentParser(description='One-hot encode records by blocking tokens')
+    parser.add_argument('inputFile',            help='CSV input file (refID in first column)')
+    parser.add_argument('--delimiter',  default=',', help='Field delimiter (default: ,)')
+    parser.add_argument('--hasHeader',  action='store_true', help='Skip first line as header')
+    parser.add_argument('--beta',       type=int,   default=2, help='Max token frequency (default: 2)')
+    parser.add_argument('--minLen',     type=int,   default=4, help='Min token length (default: 4)')
+    parser.add_argument('--allowNums',  action='store_true',   help='Allow all-digit tokens')
+    args = parser.parse_args()
+
+    # Tokenize input
+    refDict = {}
+    with open(args.inputFile) as f:
+        if args.hasHeader:
+            f.readline()
+        for line in f:
+            parts = line.strip().split(args.delimiter)
+            if not parts or not parts[0]:
+                continue
+            refID = parts[0]
+            body = ' '.join(parts[1:])
+            tokens = re.sub(r'\W', ' ', body.lower()).split()
+            refDict[refID] = tokens
+
+    # Build token frequency dictionary
+    tokenFreqDict = {}
+    for tokens in refDict.values():
+        for t in tokens:
+            tokenFreqDict[t] = tokenFreqDict.get(t, 0) + 1
+
+    vocab, vectors = build_one_hot_vectors(
+        refDict, tokenFreqDict,
+        minBlkTokenLen=args.minLen,
+        excludeNumericBlocks=not args.allowNums,
+        beta=args.beta
+    )
+
+    print(f"Vocabulary ({len(vocab)} tokens): {vocab}\n")
+    for refID, vec in vectors.items():
+        active = [vocab[i] for i, v in enumerate(vec) if v == 1]
+        print(f"{refID}  blocking_tokens={active}  vector={vec}")
