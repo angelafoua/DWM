@@ -171,6 +171,17 @@ def run_pipeline(
     clustering_result = extract_clusters(G, config.clustering)
     output.clustering_result = clustering_result
 
+    # Warn early when clustering is clearly degenerate.
+    if clustering_result.largest_cluster > 0.5 * len(vectors):
+        logger.warning(
+            "OVER-MERGE WARNING: largest cluster contains %d / %d records (%.0f%%). "
+            "Raise --threshold (currently %.2f) to fragment the graph.",
+            clustering_result.largest_cluster,
+            len(vectors),
+            100.0 * clustering_result.largest_cluster / len(vectors),
+            config.similarity.threshold,
+        )
+
     # ------------------------------------------------------------------
     # Phase 8: Transitivity analysis
     # ------------------------------------------------------------------

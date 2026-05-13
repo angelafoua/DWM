@@ -131,8 +131,25 @@ def analyze_transitivity(
     suspicious: List[SuspiciousCluster] = []
     multi_clusters = [c for c in clustering_result.clusters if not c.is_singleton]
 
+    MAX_CLUSTER_SIZE_FOR_PAIRWISE = 500
+
     with profile_block("Phase 8 — transitivity analysis"):
         for cluster in multi_clusters:
+            if cluster.size > MAX_CLUSTER_SIZE_FOR_PAIRWISE:
+                logger.warning(
+                    "Cluster %d has %d members — skipping full pairwise analysis "
+                    "(likely severe over-merge; raise --threshold to fix).",
+                    cluster.cluster_id, cluster.size,
+                )
+                suspicious.append(SuspiciousCluster(
+                    cluster_id=cluster.cluster_id,
+                    members=cluster.members,
+                    sim_variance=float("nan"),
+                    min_pairwise_sim=float("nan"),
+                    low_sim_pairs=[],
+                    suspected_chains=[],
+                ))
+                continue
             sus = _analyse_cluster(
                 cluster, G, normalized, id_to_idx, var_threshold, low_sim_thr
             )
