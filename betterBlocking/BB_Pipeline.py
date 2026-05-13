@@ -242,6 +242,21 @@ def print_cluster_report(output: PipelineOutput) -> None:
 if __name__ == "__main__":
     import argparse
     import re
+    import sys
+    import os
+
+    # Ensure the repo root (parent of betterBlocking/) is on sys.path so that
+    # both `python -m betterBlocking.BB_Pipeline` and direct script execution
+    # can resolve absolute imports.
+    _repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if _repo_root not in sys.path:
+        sys.path.insert(0, _repo_root)
+
+    # Absolute imports — relative imports are not permitted inside __main__.
+    from betterBlocking.BB10_OneHotEncoding import build_one_hot_vectors
+    from betterBlocking.utils.config import (
+        PipelineConfig, ANNConfig, SimilarityConfig, VisualizationConfig
+    )
 
     parser = argparse.ArgumentParser(
         description="ANN-based Entity Resolution Pipeline (Phases 2-12)"
@@ -262,10 +277,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # ---- Build vectors (Phase 1 — already done, replayed here for CLI use) ----
-    import sys
-    sys.path.insert(0, str(__file__).rsplit("/betterBlocking", 1)[0])
-    from betterBlocking.BB10_OneHotEncoding import build_one_hot_vectors
-
     refDict: Dict[str, List[str]] = {}
     with open(args.inputFile) as fh:
         if args.hasHeader:
@@ -293,10 +304,6 @@ if __name__ == "__main__":
     print(f"Vocabulary size: {len(vocab)} | Records: {len(vectors)}")
 
     # ---- Configure and run pipeline ----
-    from .utils.config import (
-        PipelineConfig, ANNConfig, SimilarityConfig, VisualizationConfig
-    )
-
     cfg = PipelineConfig(
         ann=ANNConfig(
             M=args.M,
