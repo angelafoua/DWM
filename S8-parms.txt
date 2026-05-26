@@ -1,0 +1,134 @@
+#######################################
+# Parameter File for Sample S8P
+#######################################
+# inputFileName must a valid path to file of entity references
+# No default value, this parameter must be specified
+inputFileName=S8P.txt
+# delimiter the field sparator character, must be comma, 
+# semi-colon, colon, pipe character, or tab character. 
+# Default value is comma
+delimiter=,
+# hasHeader must be True or False
+# If True, the first line of the file is not processed
+# If False, all lines of the file are processed as references
+# Default value is True
+hasHeader=True
+# tokenizerType choices are:
+# 'Compress' replaces non-word characters with null
+# 'CompressNbr' replace non-word chars with null, joins numbers
+# 'Splitter' replaces non-word characters with space
+# Default value is "Splitter"
+tokenizerType=Splitter
+# truthFileName Optional Parameter
+# if provided, must be an existing text file in valid format
+# Default value null
+truthFileName=truthABCpoorDQ.txt
+# runIterationProfile Optional Parameter
+# if True, outputs cluster profile & F-meas for each iteration
+# Default value False
+runIterationProfile=True
+# addRefsToLinkIndex Optional Parameter
+# If True, the complete reference is included in the link index
+# If False, the link index only includes the refID and clusterID
+# Default value False
+addRefsToLinkIndex=False
+########################################
+# Global Correction Parameters (OPTIONAL)
+# runGlobalCorrection must True or False
+# If True, global correction will run prior to blocking
+# Default value False
+runGlobalCorrection=True
+# Global Correction Details (OPTIONAL)
+# globalCorrectionDetail must True or False
+# If True, global corrections are printed to logFile
+# Default value False
+globalCorrectionDetail=False
+# minFreqStdToken must integer value > 0
+# specifies the lowest freq of correction token
+# Default value 5
+minFreqStdToken=5
+# minLenStdToken must integer value > 0
+# specifies the minimum length of a correction token
+# Default value 3
+minLenStdToken=3
+# maxFreqErrToken must integer value > 0 and < minFreqStdToken
+# specifies the minimum length of a correction token
+# Default value 3
+maxFreqErrToken=3
+########################################
+# Block Correction Parameters (OPTIONAL}
+# blockCorrection must be True or False
+# indicates if block corrections will occur
+# Default value is False
+blockCorrection=True
+# blockCorrectionDetail must be True or False
+# indicates if details of block corrections will be logged
+# Default value is False
+blockCorrectionDetail=False
+########################################
+# Blocking Parameters
+# beta must be >= 2 and < sigma
+# indicates the maximum frequency of a blocking token
+# Default value is 2
+beta=16
+# blockByPairs must be True or False
+# If True, 2 refs must share same 2 tokens to be in same block
+# If False, only have to share 1 token to be in same block
+# Default value = True
+blockByPairs=True
+# minBlkTokenLen must be integer value > 0
+# min length of a token to use for blocking
+# Default value 4
+minBlkTokenLen=3
+# excludeNumericBlocks must be True or False
+# If True, all digit tokens are not used for blocking
+# Default value True
+excludeNumericBlocks=True
+########################################
+# Stop Word Parameters
+# sigma must be an integer value > beta
+# all tokens with freq > sigma are removed before matching
+# Default value 12
+sigma=145
+# removeDuplicateTokens must be True or False
+# If True, duplicate tokens in same reference are removed
+# Default value False
+removeDuplicateTokens=True
+# removeExcludedBlkTokens must be True or False
+# If True, tokens excluded from blocking are removed from ref
+# Default value True
+removeExcludedBlkTokens=True
+########################################
+# Linking Paramters
+# mu must be decimal value between 0.0 and 1.0
+# starting value for match threshold to link two references
+# Default value 0.5
+mu=0.60
+# muIterate must be decimal value between 0.0 and 1.0
+# value added to mu at the end of each iteration
+# Default value 0.10
+muIterate=0.05
+# comparator must be the name of a valid comparator
+# 'Cosine','MongeElkan','ScoringMatrixStd', 'ScoringMatrixKris'
+# Default value ScoringMatrixKris
+comparator=ScoringMatrixKris
+# matrixNumTokenRule must be True of False
+# If True, requires exact match between two numeric tokens
+# applies only to ScoringMatrixStd and ScoringMatrixKris
+# Default value False
+matrixNumTokenRule=True
+# matrixInitialRule must be True of False
+# If True, requires exact match if either token has length 1
+# applies only to ScoringMatrixStd and ScoringMatrixKris
+# Default value False
+matrixInitialRule=True
+############################
+# Cluster Quality Parameters
+# epsilon must be decimal value between 0.0 and 1.0
+# only clusters with quality >= epsilon are kept each iteration
+# Default value 
+epsilon=0.20
+# epsilonIterate must be decimal value between 0.0 and 1.0
+# value added to epsilon at the end of each iteration
+# Default value 0.0
+epsilonIterate=0.0
