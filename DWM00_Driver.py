@@ -14,6 +14,7 @@ import DWM15_BuildLinkIndex
 import DWM16_BuildTokenFreqDict
 import DWM25_Global_Token_Replace
 import DWM42_BuildBlockPairs
+import DWM42_VectorBlockPairs
 import DWM45_Block_Cleaning
 import DWM55_LinkBlockPairs
 import DWM80_TransitiveClosure
@@ -141,7 +142,10 @@ while True:
         print('\n****New Iteration\nSize of refDict =', len(refDict))   
         print('\n****New Iteration\nSize of refDict =', len(refDict), file=logFile)  
         #blockList = DWM40_BuildBlocks.buildBlocks(logFile, refList, tokenFreqDict)
-        blockPairList = DWM42_BuildBlockPairs.buildBlockPairs(refDict, linkIndex, tokenFreqDict)
+        if DWM10_Parms.useVectorBlocking:
+            blockPairList = DWM42_VectorBlockPairs.buildVectorBlockPairs(refDict, linkIndex, tokenFreqDict)
+        else:
+            blockPairList = DWM42_BuildBlockPairs.buildBlockPairs(refDict, linkIndex, tokenFreqDict)
         if len(blockPairList)==0:
             print('--Ending because blockPairList is empty')
             print('--Ending because blockPairList is empty', file=logFile)
@@ -152,7 +156,10 @@ while True:
             # if there were block corrections, rebuild token dictionary and re-block
             if changeCount > 0:
                 tokenFreqDict=DWM16_BuildTokenFreqDict.buildTokenFreqDict(refDict)
-                blockPairList = DWM42_BuildBlockPairs.buildBlockPairs(refDict, linkIndex, tokenFreqDict)                
+                if DWM10_Parms.useVectorBlocking:
+                    blockPairList = DWM42_VectorBlockPairs.buildVectorBlockPairs(refDict, linkIndex, tokenFreqDict)
+                else:
+                    blockPairList = DWM42_BuildBlockPairs.buildBlockPairs(refDict, linkIndex, tokenFreqDict)                
             firstIteration = False
         linkedPairList = DWM55_LinkBlockPairs.linkBlockPairs(blockPairList, refDict, tokenFreqDict)
         if len(linkedPairList)==0:

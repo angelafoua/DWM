@@ -30,6 +30,10 @@ beta = 2
 blockByPairs = True
 minBlkTokenLen = 4
 excludeNumericBlocks = True
+# Vector blocking parameters (used by DWM42_VectorBlockPairs)
+useVectorBlocking = False       # True → use ANN/vector blocking; False → classic DWM42
+vectorBlockThreshold = 0.5      # cosine similarity threshold for candidate pairs
+vectorBlockTopK = 10            # number of ANN neighbours to retrieve per record
 # Block Correction Parameters
 blockCorrection = False
 blockCorrectionDetail = False
@@ -112,7 +116,7 @@ def getParms(parmFileName, logName):
     logFile = logName
     global fatalError
    
-    validParmNames = ['inputFileName','delimiter', 'hasHeader', 'tokenizerType', 'removeDuplicateTokens',                        'minFreqStdToken', 'minLenStdToken', 'maxFreqErrToken', 'addRefsToLinkIndex',                              'mu', 'muIterate', 'beta', 'minBlkTokenLen', 'sigma', 'epsilon', 'epsilonIterate',                         'excludeNumericBlocks', 'removeExcludedBlkTokens','runClusterMetrics', 'createFinalJoin',                       'blockByPairs', 'comparator','truthFileName', 'matrixNumTokenRule', 'matrixInitialRule',                        'runGlobalCorrection', 'runIterationProfile', 'blockCorrection', 'blockCorrectionDetail',                       'globalCorrectionDetail']
+    validParmNames = ['inputFileName','delimiter', 'hasHeader', 'tokenizerType', 'removeDuplicateTokens',                        'minFreqStdToken', 'minLenStdToken', 'maxFreqErrToken', 'addRefsToLinkIndex',                              'mu', 'muIterate', 'beta', 'minBlkTokenLen', 'sigma', 'epsilon', 'epsilonIterate',                         'excludeNumericBlocks', 'removeExcludedBlkTokens','runClusterMetrics', 'createFinalJoin',                       'blockByPairs', 'comparator','truthFileName', 'matrixNumTokenRule', 'matrixInitialRule',                        'runGlobalCorrection', 'runIterationProfile', 'blockCorrection', 'blockCorrectionDetail',                       'globalCorrectionDetail',                        'useVectorBlocking', 'vectorBlockThreshold', 'vectorBlockTopK']
     parmFile = open(parmFileName,'r')
     parms = {}
     lineNbr = 0
@@ -234,7 +238,19 @@ def getParms(parmFileName, logName):
         if parmName=='blockByPairs':
             global blockByPairs
             blockByPairs = convertToBoolean(lineNbr, parmValue)
-            continue         
+            continue
+        if parmName=='useVectorBlocking':
+            global useVectorBlocking
+            useVectorBlocking = convertToBoolean(lineNbr, parmValue)
+            continue
+        if parmName=='vectorBlockThreshold':
+            global vectorBlockThreshold
+            vectorBlockThreshold = convertToFloat(lineNbr, parmValue)
+            continue
+        if parmName=='vectorBlockTopK':
+            global vectorBlockTopK
+            vectorBlockTopK = convertToInteger(lineNbr, parmValue)
+            continue
         if parmName=='removeExcludedBlkTokens':
             global removeExcludedBlkTokens
             removeExcludedBlkTokens = convertToBoolean(lineNbr, parmValue)
