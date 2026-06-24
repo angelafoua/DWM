@@ -121,10 +121,13 @@ def getParms(parmFileName, logName):
     parms = {}
     lineNbr = 0
     while True:
-        line = (parmFile.readline()).strip()
-        lineNbr +=1
-        if line=='':
+        raw_line = parmFile.readline()
+        if raw_line == '':  # true EOF
             break
+        line = raw_line.strip()
+        lineNbr += 1
+        if line == '':  # blank line — skip, don't stop
+            continue
         # Skip comment lines in parameter file
         if  line.startswith('#'):
             continue
