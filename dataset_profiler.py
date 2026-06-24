@@ -233,12 +233,16 @@ def compute_quality_features(records, num_attributes, truth_dict, ref_dict):
                 missing_fields += 1
     missing_pct = round(missing_fields / total_fields * 100, 2) if total_fields else 0.0
 
-    # Duplicate density: fraction of records that are duplicates (have a truth group > 1)
+    # Duplicate density: fraction of this dataset's records that belong to a
+    # truth group of size > 1. Truth files may be GLOBAL (cover many datasets),
+    # so we must restrict the truth groups to records actually present here
+    # before counting, otherwise the ratio can exceed 1.0.
     dup_density = 0.0
     if truth_dict:
-        group_counts = Counter(truth_dict.values())
+        local_truth = {rid: truth_dict[rid] for rid in ref_dict if rid in truth_dict}
+        group_counts = Counter(local_truth.values())
         dup_records = sum(c for c in group_counts.values() if c > 1)
-        matched_records = sum(1 for rid in ref_dict if rid in truth_dict)
+        matched_records = len(local_truth)
         if matched_records > 0:
             dup_density = round(dup_records / matched_records, 4)
 
