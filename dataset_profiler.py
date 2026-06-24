@@ -40,12 +40,18 @@ PROFILE_COLUMNS = [
     "total_tokens",
     "unique_tokens",
     "unique_token_ratio",
+    "token_freq_min",
+    "token_freq_max",
     "token_freq_mean",
     "token_freq_std",
     "token_freq_skewness",
     "token_freq_kurtosis",
     "numeric_token_count",
     "numeric_token_ratio",
+    "token_len_min",
+    "token_len_max",
+    "token_len_avg",
+    "token_len_std",
     "dataset_entropy",
     "avg_attribute_entropy",
     "avg_token_entropy",
@@ -114,11 +120,13 @@ def compute_size_features(records, ref_dict, num_attributes):
 
 def compute_token_features(ref_dict):
     freq = Counter()
+    token_len_counts = Counter()
     total = 0
     numeric_count = 0
     for tokens in ref_dict.values():
         for t in tokens:
             freq[t] += 1
+            token_len_counts[len(t)] += 1
             total += 1
             if t.isdigit():
                 numeric_count += 1
@@ -128,21 +136,42 @@ def compute_token_features(ref_dict):
     numeric_ratio = round(numeric_count / total, 4) if total else 0.0
 
     freqs = np.array(list(freq.values()), dtype=float)
+    freq_min = int(np.min(freqs)) if len(freqs) > 0 else 0
+    freq_max = int(np.max(freqs)) if len(freqs) > 0 else 0
     freq_mean = round(float(np.mean(freqs)), 4)
     freq_std = round(float(np.std(freqs, ddof=1)), 4) if len(freqs) > 1 else 0.0
     freq_skew = round(float(stats.skew(freqs, bias=False)), 4) if len(freqs) > 2 else 0.0
     freq_kurt = round(float(stats.kurtosis(freqs, bias=False)), 4) if len(freqs) > 3 else 0.0
 
+    # Token length statistics (weighted by frequency, matching DWM16 approach)
+    len_min = min(token_len_counts.keys()) if token_len_counts else 0
+    len_max = max(token_len_counts.keys()) if token_len_counts else 0
+    total_f = sum(token_len_counts.values())
+    total_fxl = sum(f * l for l, f in token_len_counts.items())
+    total_fxl2 = sum(f * l * l for l, f in token_len_counts.items())
+    len_avg = round(total_fxl / total_f, 4) if total_f > 0 else 0.0
+    if total_f > 1:
+        variance = (total_f * total_fxl2 - total_fxl * total_fxl) / (total_f * (total_f - 1))
+        len_std = round(math.sqrt(max(variance, 0)), 4)
+    else:
+        len_std = 0.0
+
     return (
         total,
         unique,
         unique_ratio,
+        freq_min,
+        freq_max,
         freq_mean,
         freq_std,
         freq_skew,
         freq_kurt,
         numeric_count,
         numeric_ratio,
+        len_min,
+        len_max,
+        len_avg,
+        len_std,
         freq,
     )
 
@@ -269,8 +298,10 @@ def profile_dataset(data_file, truth_file=None, delimiter=",", has_header=True):
 
     (
         total_tokens, unique_tokens, unique_ratio,
-        freq_mean, freq_std, freq_skew, freq_kurt,
-        numeric_count, numeric_ratio, token_freq,
+        freq_min, freq_max, freq_mean, freq_std, freq_skew, freq_kurt,
+        numeric_count, numeric_ratio,
+        len_min, len_max, len_avg, len_std,
+        token_freq,
     ) = compute_token_features(ref_dict)
 
     dataset_ent, avg_attr_ent, avg_tok_ent = compute_entropy_features(
@@ -291,12 +322,18 @@ def profile_dataset(data_file, truth_file=None, delimiter=",", has_header=True):
         "total_tokens": total_tokens,
         "unique_tokens": unique_tokens,
         "unique_token_ratio": unique_ratio,
+        "token_freq_min": freq_min,
+        "token_freq_max": freq_max,
         "token_freq_mean": freq_mean,
         "token_freq_std": freq_std,
         "token_freq_skewness": freq_skew,
         "token_freq_kurtosis": freq_kurt,
         "numeric_token_count": numeric_count,
         "numeric_token_ratio": numeric_ratio,
+        "token_len_min": len_min,
+        "token_len_max": len_max,
+        "token_len_avg": len_avg,
+        "token_len_std": len_std,
         "dataset_entropy": dataset_ent,
         "avg_attribute_entropy": avg_attr_ent,
         "avg_token_entropy": avg_tok_ent,
@@ -320,12 +357,18 @@ def print_profile(profile):
     print(f"    Total Tokens:        {profile['total_tokens']}")
     print(f"    Unique Tokens:       {profile['unique_tokens']}")
     print(f"    Unique Ratio:        {profile['unique_token_ratio']}")
+    print(f"    Freq Min:            {profile['token_freq_min']}")
+    print(f"    Freq Max:            {profile['token_freq_max']}")
     print(f"    Freq Mean:           {profile['token_freq_mean']}")
     print(f"    Freq Std Dev:        {profile['token_freq_std']}")
     print(f"    Freq Skewness:       {profile['token_freq_skewness']}")
     print(f"    Freq Kurtosis:       {profile['token_freq_kurtosis']}")
     print(f"    Numeric Tokens:      {profile['numeric_token_count']}")
     print(f"    Numeric Ratio:       {profile['numeric_token_ratio']}")
+    print(f"    Token Len Min:       {profile['token_len_min']}")
+    print(f"    Token Len Max:       {profile['token_len_max']}")
+    print(f"    Token Len Avg:       {profile['token_len_avg']}")
+    print(f"    Token Len Std Dev:   {profile['token_len_std']}")
     print(f"\n  INFORMATION FEATURES")
     print(f"    Dataset Entropy:     {profile['dataset_entropy']}")
     print(f"    Avg Attr Entropy:    {profile['avg_attribute_entropy']}")
