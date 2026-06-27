@@ -12,10 +12,10 @@ Orchestrates the modular pipeline:
 import os
 import sys
 
-from experiment_io import build_cli_parser, find_base_parm_file, load_batch_file, parse_range
-from metrics_utils import print_summary
-from parameter_search import generate_search_space
-from sweep_runner import run_sweep
+from sweep.experiment_io import build_cli_parser, find_base_parm_file, load_batch_file, parse_range
+from sweep.metrics_utils import print_summary
+from sweep.parameter_search import generate_search_space
+from sweep.sweep_runner import run_sweep
 from typing import List, Optional, Tuple
 
 

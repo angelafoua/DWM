@@ -15,9 +15,9 @@ import sys
 import time
 from typing import Any, Dict, Generator, Iterable, List, Optional, Set, Tuple
 
-_here = os.path.dirname(os.path.abspath(__file__))
-if _here not in sys.path:
-    sys.path.insert(0, _here)
+_parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _parent not in sys.path:
+    sys.path.insert(0, _parent)
 
 import DWM10_Parms
 import DWM14_BuildRefDict
